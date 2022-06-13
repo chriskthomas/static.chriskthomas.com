@@ -58,7 +58,9 @@ jobs:
         run:  find ./dist/ -type f -exec sed -i "s/https:\/\/chriskthomas.com\/\?/\//g" {} \;
 
       - name: Make .nojekyll
-        run:  touch dist/.nojekyll
+        run: |
+          touch dist/.nojekyll
+          echo "static.chriskthomas.com" > dist/CNAME
 
       - name: Deploy
         uses: s0/git-publish-subdir-action@v2.5.1
