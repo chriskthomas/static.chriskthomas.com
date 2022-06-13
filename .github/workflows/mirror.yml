@@ -28,7 +28,7 @@ jobs:
 
       # Runs a single command using the runners shell
       - name: Download the files
-        run:  wget -m --no-host-directories https://chriskthomas.com
+        run:  wget -m --no-host-directories --adjust-extension --convert-links https://chriskthomas.com/
 
       - name: Save the file attrs
         run:  .github/bin/save-file-attrs.py save
