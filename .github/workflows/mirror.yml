@@ -32,7 +32,7 @@ jobs:
           fi
 
       - name: Download the files
-        run:  wget -m --no-host-directories --directory-prefix="www" --wait 1 https://chriskthomas.com/
+        run:  wget -m --tries=5 --no-host-directories --directory-prefix="www" --wait 1 https://chriskthomas.com/
 
       - name: Save the file attrs
         run:  .github/bin/save-file-attrs.py save
