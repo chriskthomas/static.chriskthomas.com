@@ -22,29 +22,45 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      - name: Restore the file attrs
-        continue-on-error: true
-        run:  .github/bin/save-file-attrs.py restore
+      - name: Restore the file attrs (mtime)
+        run: |
+          if [ -d "www" ]
+          then
+            .github/bin/save-file-attrs.py restore
+          else
+            mkdir www
+          fi
 
-      # Runs a single command using the runners shell
       - name: Download the files
-        run:  wget -m --no-host-directories --wait 1 https://chriskthomas.com/
-
-      - name: Remove query strings from file names
-        run:  .github/bin/cleanup-querystrings.py
+        run:  wget -m --no-host-directories --directory-prefix="www" --wait 1 https://chriskthomas.com/
 
       - name: Save the file attrs
         run:  .github/bin/save-file-attrs.py save
-
-      - name: List files
-        run:  ls -al
 
       - name: Commit files
         run: |
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add -- . ':!.github'
+          git add -- ./www ':!.github'
           git commit -m "automatically update site" || echo "Error (probably no changes to commit)"
 
       - name: Push changes
         run:  git push
+
+      # Start post-processing
+      - name: Make dist folder and copy files
+        run:  mkdir -p dist && cp -r www/* dist/
+
+      - name: Remove query strings from file names
+        run:  .github/bin/cleanup-querystrings.py
+
+      - name: Make .nojekyll
+        run:  touch dist/.nojekyll
+
+      - name: Deploy
+        uses: s0/git-publish-subdir-action@v2.5.1
+        env:
+          REPO: self
+          BRANCH: gh-pages
+          FOLDER: dist
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

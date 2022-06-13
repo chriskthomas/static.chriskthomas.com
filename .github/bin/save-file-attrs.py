@@ -8,7 +8,6 @@ import json
 import os
 import sys
 
-
 def collect_file_attrs(path):
     dirs = os.walk(path)
     file_attrs = {}
@@ -61,6 +60,7 @@ def apply_file_attrs(attrs):
 
 def main():
     ATTR_FILE_NAME = ".saved-file-attrs"
+    FOLDER_NAME = "www"
 
     parser = argparse.ArgumentParser(
         "Save and restore file attributes in a directory tree"
@@ -76,7 +76,7 @@ def main():
 
     if args.mode == "save":
         attr_file = open(ATTR_FILE_NAME, "w")
-        attrs = collect_file_attrs(".")
+        attrs = collect_file_attrs(FOLDER_NAME)
         json.dump(attrs, attr_file, indent=2)
     elif args.mode == "restore":
         if not os.path.exists(ATTR_FILE_NAME):

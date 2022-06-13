@@ -1,3 +1,4 @@
+#!/usr/bin/python3
 """ 
 Often after performing a wget -p -k http://example.com
 The resulting files will include static resources with query strings appended.
@@ -8,10 +9,17 @@ This script strips away the query strings so that you can serve the site statica
 This is the first step in porting a theme from another CMS to a Diazo based Plone theme
 """
 import os
+
+# change directory to dist
+os.chdir("dist")
+
 for root, dirs, files in os.walk("."):
     for file in files:
         if '?' in file:
             newname = file.split('?')[0]
             oldpath = root + os.sep + file
             newpath = root + os.sep + newname
-            os.rename(oldpath,newpath)
+            if os.path.isfile(oldpath):
+                os.remove(oldpath)
+            else:
+                os.rename(oldpath,newpath)
