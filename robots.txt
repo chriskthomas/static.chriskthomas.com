@@ -1,0 +1,5 @@
+Sitemap: https://chriskthomas.com/sitemap.xml
+Sitemap: https://chriskthomas.com/news-sitemap.xml
+User-agent: *
+Disallow: /wp-admin/
+Allow: /wp-admin/admin-ajax.php
