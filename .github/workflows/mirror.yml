@@ -30,6 +30,9 @@ jobs:
       - name: Download the files
         run:  wget -m --no-host-directories --wait 1 https://chriskthomas.com/
 
+      - name: Remove query strings from file names
+        run:  .github/bin/cleanup-querystrings.py
+
       - name: Save the file attrs
         run:  .github/bin/save-file-attrs.py save
 
