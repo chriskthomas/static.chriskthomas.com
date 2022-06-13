@@ -22,10 +22,16 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
 
-      # Runs a single command using the runners shell
-      - name: Run a one-line script
-        run: wget -m --no-host-directories https://chriskthomas.com
+      - name: Restore the file attrs
+        run:  .github/bin/save-file-attrs.py restore
 
+      # Runs a single command using the runners shell
+      - name: Download the files
+        run:  wget -m --no-host-directories https://chriskthomas.com
+
+      - name: Save the file attrs
+        run:  .github/bin/save-file-attrs.py save
+    
       # Runs a set of commands using the runners shell
       - name: Run a multi-line script
         run: |
