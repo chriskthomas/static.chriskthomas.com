@@ -17,12 +17,8 @@ def collect_file_attrs(path):
             path = os.path.join(dirpath, file)
             file_info = os.lstat(path)
             file_attrs[path] = {
-                "mode": file_info.st_mode,
-                "ctime": file_info.st_ctime,
                 "mtime": file_info.st_mtime,
                 "atime": file_info.st_atime,
-                "uid": file_info.st_uid,
-                "gid": file_info.st_gid,
             }
     return file_attrs
 
@@ -33,23 +29,9 @@ def apply_file_attrs(attrs):
         if os.path.lexists(path):
             atime = attr["atime"]
             mtime = attr["mtime"]
-            uid = attr["uid"]
-            gid = attr["gid"]
-            mode = attr["mode"]
 
             current_file_info = os.lstat(path)
-            mode_changed = current_file_info.st_mode != mode
             mtime_changed = current_file_info.st_mtime != mtime
-            uid_changed = current_file_info.st_uid != uid
-            gid_changed = current_file_info.st_gid != gid
-
-            if uid_changed or gid_changed:
-                print("Updating UID, GID for %s" % path, file=sys.stderr)
-                os.chown(path, uid, gid)
-
-            if mode_changed:
-                print("Updating permissions for %s" % path, file=sys.stderr)
-                os.chmod(path, mode)
 
             if mtime_changed:
                 print("Updating mtime for %s" % path, file=sys.stderr)
