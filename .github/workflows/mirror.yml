@@ -23,6 +23,7 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Restore the file attrs
+        continue-on-error: true
         run:  .github/bin/save-file-attrs.py restore
 
       # Runs a single command using the runners shell
