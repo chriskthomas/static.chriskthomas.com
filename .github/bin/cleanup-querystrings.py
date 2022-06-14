@@ -19,7 +19,7 @@ for root, dirs, files in os.walk("."):
             newname = file.split('?')[0]
             oldpath = root + os.sep + file
             newpath = root + os.sep + newname
-            if os.path.isfile(oldpath):
+            if os.path.isfile(newpath):
                 os.remove(oldpath)
             else:
                 os.rename(oldpath,newpath)
