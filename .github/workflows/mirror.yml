@@ -32,7 +32,7 @@ jobs:
           fi
 
       - name: Download the files
-        run:  wget -m --retry-connrefused --tries=20 --no-host-directories --directory-prefix="www" --exclude-directories=/wp-json --wait 1 https://chriskthomas.com/
+        run:  wget -m --retry-connrefused --tries=20 --no-host-directories --directory-prefix="www" --exclude-directories="/wp-json,/wp-admin" --regex-type 'pcre' --reject-regex '.*\?(?!ver).*' --wait 1 https://chriskthomas.com/
 
       - name: Save the file attrs
         run:  .github/bin/save-file-attrs.py save
