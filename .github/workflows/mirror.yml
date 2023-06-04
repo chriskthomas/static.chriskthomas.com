@@ -5,15 +5,30 @@ name: Mirror Site
 # Controls when the workflow will run
 on:
   schedule:
-    - cron: "11 * * * *"
+    - cron: "11 21 * * *"
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   # This workflow contains a single job called "build"
   build:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     # The type of runner that the job will run on
     runs-on: ubuntu-latest
 
@@ -34,16 +49,38 @@ jobs:
       - name: Download the files
         run: wget -m --retry-connrefused --tries=20 --no-host-directories --directory-prefix="www" --exclude-directories="/wp-json,/wp-admin" --regex-type 'pcre' --reject-regex '.*\?(?!ver).*' --wait 1 https://chriskthomas.com/
 
-      - name: Save the file attrs
-        run: .github/bin/save-file-attrs.py save
+      #- name: Save the file attrs
+      #  run: .github/bin/save-file-attrs.py save
 
-      - name: Commit files
-        run: |
-          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git config --local user.name "github-actions[bot]"
-          git add -- ./www
-          git diff-index --cached --quiet HEAD -- || git add .saved-file-attrs
-          git commit -m "automatically update site" || echo "Error (probably no changes to commit)"
+      #- name: Commit files
+      #  run: |
+      #    git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+      #    git config --local user.name "github-actions[bot]"
+      #    git add -- ./www
+      #    git diff-index --cached --quiet HEAD -- || git add .saved-file-attrs
+      #    git commit -m "automatically update site" || echo "Error (probably no changes to commit)"
 
-      - name: Push changes
-        run: git push
+      #- name: Push changes
+      #  run: git push
+
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      # Start post-processing
+      - name: Make dist folder and copy files
+        run: mkdir -p dist && cp -r www/* dist/
+      - name: Remove query strings from file names
+        run: .github/bin/cleanup-querystrings.py
+      - name: Replace text
+        run: find ./dist/ -type f -exec sed -i "s/https:\/\/chriskthomas.com\/\?/\//g" {} \;
+
+      # Start upload
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: "dist"
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
