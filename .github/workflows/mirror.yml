@@ -75,6 +75,8 @@ jobs:
         run: .github/bin/cleanup-querystrings.py
       - name: Replace text
         run: find ./dist/ -type f -exec sed -i "s/https:\/\/chriskthomas.com\/\?/\//g" {} \;
+      - name: Copy robots.txt
+        run: cp robots.txt dist/ 
 
       # Start upload
       - name: Upload artifact
