@@ -37,33 +37,11 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
-      #- name: Restore the file attrs (mtime)
-      #  run: |
-      #    if [ -d "www" ]
-      #    then
-      #      .github/bin/save-file-attrs.py restore
-      #    else
-      #      mkdir www
-      #    fi
-
+      # Download website
       - name: Download the files
         run: wget -m --retry-connrefused --tries=20 --no-host-directories --directory-prefix="www" --exclude-directories="/wp-json,/wp-admin" --regex-type 'pcre' --reject-regex '.*\?(?!ver).*' --wait 1 https://chriskthomas.com/
       - name: Download 404
         run: wget --content-on-error --directory-prefix="www" https://chriskthomas.com/404.html || echo "Expexted error"
-
-      #- name: Save the file attrs
-      #  run: .github/bin/save-file-attrs.py save
-
-      #- name: Commit files
-      #  run: |
-      #    git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
-      #    git config --local user.name "github-actions[bot]"
-      #    git add -- ./www
-      #    git diff-index --cached --quiet HEAD -- || git add .saved-file-attrs
-      #    git commit -m "automatically update site" || echo "Error (probably no changes to commit)"
-
-      #- name: Push changes
-      #  run: git push
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -73,8 +51,10 @@ jobs:
         run: mkdir -p dist && cp -r www/* dist/
       - name: Remove query strings from file names
         run: .github/bin/cleanup-querystrings.py
-      - name: Replace text
-        run: find ./dist/ -type f -exec sed -i "s/https:\/\/chriskthomas.com\/\?/\//g" {} \;
+      - name: Remove domain from URLs # breaks if you have the domain in the content or have http links
+        run: find ./dist/ -type f -exec sed -i -E 's;(https:)?//chriskthomas.com/?;/;g' {} \;
+      - name: Delete comments blocks in posts # breaks if you have a section inside the comments section
+        run: find ./dist/ -type f -name 'index.html' -exec perl -i -0777pe 's;<section id="comments".*?</section>;;s' {} \;
       - name: Copy robots.txt
         run: cp robots.txt dist/
 
