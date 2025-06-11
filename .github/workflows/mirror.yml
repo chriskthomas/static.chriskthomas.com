@@ -53,8 +53,6 @@ jobs:
         run: .github/bin/cleanup-querystrings.py
       - name: Remove domain from URLs # breaks if you have the domain in the content or have http links
         run: find ./dist/ -type f -exec sed -i -E 's;(https:)?//chriskthomas.com/?;/;g' {} \;
-      - name: Delete comments blocks in posts # breaks if you have a section inside the comments section
-        run: find ./dist/ -type f -name 'index.html' -exec perl -i -0777pe 's;<section id="comments".*?</section>;;s' {} \;
       - name: Copy robots.txt
         run: cp robots.txt dist/
 
